@@ -14,5 +14,4 @@
 # keyboard.json schema does not support these as features keys.
 LTO_ENABLE = yes
 NKRO_ENABLE = yes
-COMBO_ENABLE = no
-TAP_DANCE_ENABLE = no
+
