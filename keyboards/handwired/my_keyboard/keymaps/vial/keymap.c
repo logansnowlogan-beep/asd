@@ -20,18 +20,18 @@
 //
 #include QMK_KEYBOARD_H
 
-// 1. Properly initialized combo array for future use
-// To add combos later: define your key arrays, increment your count, and list them here.
+// 1. Properly initialized placeholder combo structure 
+const uint16_t PROGMEM placeholder_combo[] = {KC_A, KC_B, COMBO_END};
 combo_t key_combos[COMBO_COUNT] = {
-    // Leave blank for now; the compiler handles an empty array safely when sized by COMBO_COUNT
+    COMBO(placeholder_combo, KC_NO) // Set to KC_NO so it doesn't physically trigger anything
 };
 
-// 2. Properly initialized Tap Dance structure for future use
-// To add Tap Dances later: Use TD(TD_INDEX) in your keymap layout below.
+// 2. Properly initialized placeholder Tap Dance structure
 tap_dance_action_t tap_dance_actions[] = {
-    [0] = ACTION_TAP_DANCE_FN(NULL) // Placeholder template definition
+    = ACTION_TAP_DANCE_FN(NULL)
 };
 
+// Your existing 45-key keymaps layers array goes directly below...
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     [0] = LAYOUT(
         /* Row 0: 12 keys */
