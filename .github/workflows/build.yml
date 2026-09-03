@@ -58,12 +58,18 @@ jobs:
           cd vial-qmk
           qmk compile -kb handwired/my_keyboard -km vial
 
+      - name: Collect Firmware
+        run: |
+          set -e
+          mkdir -p firmware
+          find vial-qmk/.build -maxdepth 1 -type f \( -name "*.uf2" -o -name "*.bin" -o -name "*.hex" \) -print -exec cp {} firmware/ \;
+          echo "Collected firmware files:"
+          ls -lah firmware
+          test -n "$(find firmware -maxdepth 1 -type f -print -quit)"
+
       - name: Upload Compiled Firmware
         uses: actions/upload-artifact@v4
         with:
           name: my_keyboard-vial-firmware
-          path: |
-            vial-qmk/.build/*.uf2
-            vial-qmk/.build/*.bin
-            vial-qmk/.build/*.hex
+          path: firmware/
           if-no-files-found: error
