@@ -5,7 +5,7 @@ on:
     branches: [ "main", "master" ]
   pull_request:
     branches: [ "main", "master" ]
-  workflow_dispatch: # Allows you to trigger the build manually from the Actions tab
+  workflow_dispatch: 
 
 jobs:
   build:
@@ -13,7 +13,7 @@ jobs:
     container: ghcr.io/qmk/qmk_cli:latest
 
     steps:
-      # Step 1: Check out your personal repository containing your custom layout/config
+      # Step 1: Check out your personal repository containing your custom handwired layout
       - name: Checkout User Repository
         uses: actions/checkout@v4
         with:
@@ -24,32 +24,29 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: 'vial-kb/vial-qmk'
-          ref: 'vial' # Explicitly targets the correct stable branch instead of wildcards
+          ref: 'vial' 
           submodules: recursive
           path: vial-qmk
 
-      # Step 3: Inject your custom keyboard/keymap files into the Vial environment
+      # Step 3: Inject your custom handwired folder structure into the Vial environment
       - name: Setup and Inject Custom Keymap
         run: |
-          # Safe directory fix for Git within the container execution
           git config --global --add safe.directory $(pwd)/vial-qmk
           
-          # Replace 'my_keyboard' with your keyboard's folder directory inside your user_repo
-          # If your custom files are right in the root of your repo, adjust the source path
-          if [ -d "user_repo/my_keyboard" ]; then
-            cp -R user_repo/my_keyboard vial-qmk/keyboards/
-            echo "Successfully injected custom keyboard into vial-qmk!"
+          # Target your handwired subfolder and recursively copy it into vial-qmk/keyboards/
+          if [ -d "user_repo/keyboards/handwired" ]; then
+            cp -R user_repo/keyboards/handwired vial-qmk/keyboards/
+            echo "Successfully injected handwired directory into vial-qmk!"
           else
-            echo "Warning: user_repo/my_keyboard not found. Will compile default keyboard profile."
+            echo "Error: user_repo/keyboards/handwired folder not found. Double check your repository structure."
+            exit 1
           fi
 
-      # Step 4: Compile the custom Vial keyboard firmware binary
+      # Step 4: Compile using the precise relative path within the QMK directory structure
       - name: Compile Firmware
         run: |
           cd vial-qmk
-          # CHANGE 'my_keyboard' to your exact keyboard folder name (e.g., idobao/id75)
-          # CHANGE 'vial' to your target keymap name if it differs
-          qmk compile -kb my_keyboard -km vial
+          qmk compile -kb handwired/my_keyboard -km vial
 
       # Step 5: Export the compiled firmware binary out as a downloadable build artifact
       - name: Upload Compiled Firmware Artifact
@@ -61,4 +58,3 @@ jobs:
             vial-qmk/.build/*.bin
             vial-qmk/.build/*.uf2
           if-no-files-found: warn
-
