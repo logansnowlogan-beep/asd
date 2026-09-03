@@ -20,18 +20,21 @@
 //
 #include QMK_KEYBOARD_H
 
+// Fixes the 'key_combos' undeclared error when COMBO_ENABLE = yes is set in rules.mk
+const uint16_t PROGMEM key_combos[0] = {};
+
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     [0] = LAYOUT(
-        /* Row 0: 12 keys (Cols: 0, 1, 2, 3, 4, 5, 7, 8, 9, 10, 11, 12) */
-        KC_GESC, KC_Q,    KC_W,    KC_E,    KC_R,    KC_T,    KC_Y,    KC_U,    KC_I,    KC_O,    KC_P,    KC_BSPC,
+        /* Row 0: 12 keys */
+        KC_ESC,  KC_Q,    KC_W,    KC_E,    KC_R,    KC_T,    KC_Y,    KC_U,    KC_I,    KC_O,    KC_P,    KC_BSPC,
         
-        /* Row 1: 12 keys (Cols: 0, 1, 2, 3, 4, 5, 7, 8, 9, 10, 11, 12) */
+        /* Row 1: 12 keys */
         KC_TAB,  KC_A,    KC_S,    KC_D,    KC_F,    KC_G,    KC_H,    KC_J,    KC_K,    KC_L,    KC_SCLN, KC_QUOT,
         
-        /* Row 2: 13 keys (Cols: 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12) */
+        /* Row 2: 13 keys */
         KC_LSFT, KC_Z,    KC_X,    KC_C,    KC_V,    KC_B,    KC_UP,   KC_N,    KC_M,    KC_COMM, KC_DOT,  KC_SLSH, KC_ENT,
         
-        /* Row 3: 8 keys  (Cols: 0, 1, 2, 4, 8, 9, 10, 12) */
+        /* Row 3: 8 keys */
         KC_LCTL, KC_LGUI, KC_LALT, KC_SPC,  KC_LEFT, KC_DOWN, KC_RGHT, MO(1)
     ),
     [1] = LAYOUT(
@@ -45,4 +48,3 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS
     )
 };
-
