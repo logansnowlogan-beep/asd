@@ -9,6 +9,9 @@
 //
 #pragma once
 
+#define COMBO_COUNT 1 // Must be at least 1 if active; 0 will cause a different macro array error
+
+
 // ── VIAL KEYBOARD UID ─────────────────────────────────────────────
 // A unique 8-byte identifier for this keyboard in Vial's database.
 // This ID is embedded in the firmware so Vial can identify the keyboard
