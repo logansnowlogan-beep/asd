@@ -1,57 +1,64 @@
-name: Build my_keyboard
+name: Build Vial Firmware
+
 on:
   push:
-    paths:
-      - "keyboards/handwired/my_keyboard/**"
-      - ".github/workflows/build.yml"
-  workflow_dispatch:   # allows manual trigger from GitHub Actions UI
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+  workflow_dispatch: # Allows you to trigger the build manually from the Actions tab
+
 jobs:
   build:
     runs-on: ubuntu-latest
-    steps:
-      # Step 1: Get your keyboard definition files
-      - uses: actions/checkout@v4
+    container: ghcr.io/qmk/qmk_cli:latest
 
-      # Step 2: Get the Vial-QMK firmware base (the vial branch)
-      - uses: actions/checkout@v4
+    steps:
+      # Step 1: Check out your personal repository containing your custom layout/config
+      - name: Checkout User Repository
+        uses: actions/checkout@v4
         with:
-          repository: vial-kb/vial-qmk
-          ref: 2
+          path: user_repo
+
+      # Step 2: Check out the official Vial-QMK firmware codebase
+      - name: Checkout Vial-QMK Repository
+        uses: actions/checkout@v4
+        with:
+          repository: 'vial-kb/vial-qmk'
+          ref: 'vial' # Explicitly targets the correct stable branch instead of wildcards
           submodules: recursive
           path: vial-qmk
 
-      # Step 3: Install build dependencies
-      - run: sudo apt-get update && sudo apt-get install -y python3 python3-pip git make rsync
+      # Step 3: Inject your custom keyboard/keymap files into the Vial environment
+      - name: Setup and Inject Custom Keymap
+        run: |
+          # Safe directory fix for Git within the container execution
+          git config --global --add safe.directory $(pwd)/vial-qmk
+          
+          # Replace 'my_keyboard' with your keyboard's folder directory inside your user_repo
+          # If your custom files are right in the root of your repo, adjust the source path
+          if [ -d "user_repo/my_keyboard" ]; then
+            cp -R user_repo/my_keyboard vial-qmk/keyboards/
+            echo "Successfully injected custom keyboard into vial-qmk!"
+          else
+            echo "Warning: user_repo/my_keyboard not found. Will compile default keyboard profile."
+          fi
 
-      # Step 4: Install the QMK CLI tool
-      - run: python3 -m pip install qmk && echo "$HOME/.local/bin" >> $GITHUB_PATH
+      # Step 4: Compile the custom Vial keyboard firmware binary
+      - name: Compile Firmware
+        run: |
+          cd vial-qmk
+          # CHANGE 'my_keyboard' to your exact keyboard folder name (e.g., idobao/id75)
+          # CHANGE 'vial' to your target keymap name if it differs
+          qmk compile -kb my_keyboard -km vial
 
-      # Step 5: Copy your keyboard definition into the vial-qmk tree
-      - run: |
-          # Sanity check: keyboards/ folder must exist. If this fails, you pushed the zip file
-          # instead of extracting it first. Unzip locally and push all extracted files.
-          test -d keyboards/handwired/my_keyboard || (echo "ERROR: keyboards/handwired/my_keyboard/ not found. Push the extracted zip contents, not the zip file itself." && exit 1)
-          mkdir -p vial-qmk/keyboards/handwired/my_keyboard
-          rsync -av --delete keyboards/handwired/my_keyboard/ vial-qmk/keyboards/handwired/my_keyboard/
-
-      # Step 6: Verify required files are present before building
-      - run: |
-          test -f vial-qmk/keyboards/handwired/my_keyboard/keyboard.json || (echo "ERROR: keyboard.json missing" && exit 1)
-          test -f vial-qmk/keyboards/handwired/my_keyboard/keymaps/vial/vial.json || (echo "ERROR: vial.json missing" && exit 1)
-          find vial-qmk/keyboards/handwired/my_keyboard -type f -print
-
-      # Step 7: Compile the firmware (V=1 = verbose output for debugging)
-      - run: cd vial-qmk && make handwired/my_keyboard:vial V=1
-
-      # Step 8: Collect the compiled firmware file(s)
-      - run: |
-          mkdir -p artifacts
-          find vial-qmk/.build -type f \( -name "*.uf2" -o -name "*.bin" -o -name "*.hex" \) -exec cp {} artifacts/ \;
-          echo "Firmware files:"; ls -lah artifacts
-          test -n "$(ls -A artifacts)" || (echo "ERROR: No firmware found — check build log above" && exit 1)
-
-      # Step 9: Upload so you can download from the Actions UI
-      - uses: actions/upload-artifact@v4
+      # Step 5: Export the compiled firmware binary out as a downloadable build artifact
+      - name: Upload Compiled Firmware Artifact
+        uses: actions/upload-artifact@v4
         with:
-          name: my_keyboard_vial_firmware
-          path: artifacts
+          name: compiled-vial-firmware
+          path: |
+            vial-qmk/.build/*.hex
+            vial-qmk/.build/*.bin
+            vial-qmk/.build/*.uf2
+          if-no-files-found: warn
+
