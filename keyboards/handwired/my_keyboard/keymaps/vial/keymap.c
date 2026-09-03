@@ -20,8 +20,11 @@
 //
 #include QMK_KEYBOARD_H
 
-// Fixes the 'key_combos' undeclared error when COMBO_ENABLE = yes is set in rules.mk
-const uint16_t PROGMEM key_combos[0] = {};
+// 1. Correctly define the Combo structure
+combo_t key_combos[0] = {};
+
+// 2. Correctly define the Tap Dance structure
+qk_tap_dance_action_t tap_dance_actions[0] = {};
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     [0] = LAYOUT(
