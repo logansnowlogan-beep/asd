@@ -20,11 +20,17 @@
 //
 #include QMK_KEYBOARD_H
 
-// 1. Correctly define an empty Combo array matching QMK's structure
-combo_t key_combos[1] = {};
+// 1. Properly initialized combo array for future use
+// To add combos later: define your key arrays, increment your count, and list them here.
+combo_t key_combos[COMBO_COUNT] = {
+    // Leave blank for now; the compiler handles an empty array safely when sized by COMBO_COUNT
+};
 
-// 2. Correctly define an empty Tap Dance array matching QMK's type rules
-tap_dance_action_t tap_dance_actions[1] = {};
+// 2. Properly initialized Tap Dance structure for future use
+// To add Tap Dances later: Use TD(TD_INDEX) in your keymap layout below.
+tap_dance_action_t tap_dance_actions[] = {
+    [0] = ACTION_TAP_DANCE_FN(NULL) // Placeholder template definition
+};
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     [0] = LAYOUT(
